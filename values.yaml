@@ -23,22 +23,22 @@ minio:
     selector: ""
   # -- Pod assigned resources
   resources:
-    # limits:
-    #   cpu: "500m"
-    #   memory: "512Mi"
-    # requests:
-    #   cpu: "200m"
-    #   memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
   # -- Pod security context
   securityContext:
-    # allowPrivilegeEscalation: false
-    # runAsNonRoot: false
-    # readOnlyRootFilesystem: true
-    # capabilities:
-    #   drop:
-    #     - ALL
-    # seccompProfile:
-    #   type: RuntimeDefault
+    allowPrivilegeEscalation: false
+    runAsNonRoot: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
   service:
     # -- Service type (e.g., ClusterIP)
     type: ClusterIP
