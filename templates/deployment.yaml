@@ -28,7 +28,6 @@ spec:
               protocol: TCP
             - containerPort: {{ .Values.minio.service.consolePort }}
               protocol: TCP
-
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-minio-secret
@@ -45,6 +44,23 @@ spec:
           {{- if .Values.minio.securityContext }}
           securityContext:
             {{- toYaml .Values.minio.securityContext | nindent 12 }}
+          {{- end }}
+          {{- if .Values.minio.probes.enabled }}
+          startupProbe:
+            httpGet:
+              path: /minio/health/live
+              port: {{ .Values.minio.service.port }}
+            {{- toYaml .Values.minio.probes.startup | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: {{ .Values.minio.service.port }}
+            {{- toYaml .Values.minio.probes.liveness | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: {{ .Values.minio.service.port }}
+            {{- toYaml .Values.minio.probes.readiness | nindent 12 }}
           {{- end }}
       volumes:
         - name: minio-data
