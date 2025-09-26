@@ -1,4 +1,4 @@
-# DBGate Helm Chart
+# MinIO Helm Chart
 
 {{ template "chart.description" . }}
 
@@ -8,24 +8,24 @@
 
 {{ template "chart.requirementsSection" . }}
 
-## About DbGate
+## About MinIO
 
-DbGate is a cross-platform database manager that supports a wide range of databases, including MySQL, PostgreSQL, SQL Server, SQLite, and more. It provides a web-based interface for managing databases, executing queries, and visualizing data.
+MinIO is an S3 compatible file storage system.
 
-**Key Features:**
+### Key Features
 
-1. **Multi-Database Support**: Connect to various database engines from a single interface.
-2. **Web-Based Interface**: Access DbGate through a browser for easy management.
-3. **Query Execution**: Run SQL queries with a powerful editor and view results.
-4. **Data Visualization**: Visualize data with charts and export capabilities.
-5. **Open-Source**: Fully customizable and community-driven.
+- Exabyte Scale: Supports frictionless growth in a single flat namespace, enabling seamless expansion for large-scale data storage needs.
+- Warp Speed Performance: Delivers 21.8 TiB/s throughput, saturating hardware from drive IOPS to network throughput with zero bottlenecks, ideal for high-performance requirements.
+- Deepest AI Ecosystem: Offers native integration with PyTorch, Iceberg, and every major AI framework, along with the richest S3 API support.
+- Zero Lock-In: Provides flexibility from edge to core to cloud, ensuring compatibility across different environments without vendor lock-in.
 
-**Benefits:**
+### Benefits
 
-1. **Versatility**: Supports multiple database types, making it ideal for diverse environments.
-2. **Ease of Use**: Intuitive web interface simplifies database management.
-3. **Self-Hosted**: Deploy on your infrastructure for full control over data.
-4. **Customizable**: Open-source nature allows for tailored configurations.
+- Unmatched Performance for AI: Enables fast AI training pipelines and real-time data for autonomous agents, scaling with GPU speed for AI models and applications.
+Cost Efficiency: Achieves 40% lower TCO with best-in-class unit economics, reducing operational costs for enterprises.
+- Wide Adoption: Trusted by 77% of the Fortune 500, 9/10 of the largest automotive companies, 10/10 of the largest US banks, and 8/10 of the largest US retailers, indicating reliability and scalability.
+- Future-Proof Infrastructure: Unifies and future-proofs enterprise AI data infrastructure with a software-defined, object-native architecture, suitable for exascale era demands.
+- Versatile Use Cases: Supports AI models, AI agents, and data lakehouse analytics, streaming insights instantly with compatibility for major lakehouse engines and open table formats.
 
 ## Prerequisites
 
@@ -38,17 +38,14 @@ DbGate is a cross-platform database manager that supports a wide range of databa
 
 Customize the deployment by editing `values.yaml` or creating a `local-values.yaml` file with overrides. Key configurations include:
 
-- `dbgate.image`: Specify the DbGate image repository, tag, and pull policy.
-- `dbgate.pvc`: Configure the PVC for `/root/.dbgate` (storage size, storage class, or selector for pre-provisioned PV).
-- `dbgate.config`: Set environment variables for DbGate (e.g., `DB_PORT`).
+- `minio.image`: Specify the MinIO image repository, tag, and pull policy.
+- `minio.pvc`: Configure the PVC for `/root/.MinIO` (storage size, storage class, or selector for pre-provisioned PV).
 - `ingress`: Enable and configure Ingress for external access.
 - `resources` and `securityContext`: Define resource limits and security settings.
 
-Additional configuration options are available at [DbGate Documentation](https://dbgate.org/docs/env-variables/).
-
 ## Dynamic PVC Provisioning
 
-This chart uses dynamic provisioning for the PVC by default, with `dbgate.pvc.storageClassName` set to `""` to use the cluster's default StorageClass. Ensure your cluster has a default StorageClass configured:
+This chart uses dynamic provisioning for the PVC by default, with `minio.pvc.storageClassName` set to `""` to use the cluster's default StorageClass. Ensure your cluster has a default StorageClass configured:
 
 ```bash
 kubectl get storageclass
@@ -60,7 +57,7 @@ Look for a StorageClass with `(default)` in the output. If none exists, create o
 kubectl patch storageclass <storage-class-name> -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
-If you prefer a specific StorageClass, set `dbgate.pvc.storageClassName` to its name in `values.yaml`.
+If you prefer a specific StorageClass, set `minio.pvc.storageClassName` to its name in `values.yaml`.
 
 ## Enabling Ingress
 
@@ -69,7 +66,7 @@ If you lack an Ingress controller, enable `ingress.enabled` in `values.yaml` to 
 To use a TLS certificate, create a secret:
 
 ```bash
-kubectl create --namespace dbgate secret tls dbgate-tls-cert --cert=tls.crt --key=tls.key
+kubectl create --namespace MinIO secret tls MinIO-tls-cert --cert=tls.crt --key=tls.key
 ```
 
 Then configure `ingress.tls` in `values.yaml`:
@@ -77,11 +74,11 @@ Then configure `ingress.tls` in `values.yaml`:
 ```yaml
 ingress:
   enabled: true
-  hostname: dbgate.nuc.chadamberg.com
+  hostname: minio.lvh.me
   tls:
-    - secretName: dbgate-tls-cert
+    - secretName: MinIO-tls-cert
       hosts:
-        - dbgate.nuc.chadamberg.com
+        - minio.lvh.me
 ```
 
 ## Deployment
@@ -94,24 +91,24 @@ kubectl get storageclass
 
 Ensure a default StorageClass is set, or the PVC will fail to bind.
 
-2. Create a namespace if needed:
+1. Create a namespace if needed:
 
 ```bash
-kubectl create ns dbgate
+kubectl create ns MinIO
 ```
 
-3. Customize values by creating a `local-values.yaml` file with overrides from `values.yaml`.
+1. Customize values by creating a `local-values.yaml` file with overrides from `values.yaml`.
 
-4. Install the Helm chart:
+1. Install the Helm chart:
 
 ```bash
-helm install --namespace dbgate -f ./local-values.yaml dbgate .
+helm install --namespace MinIO -f ./local-values.yaml minio .
 ```
 
-5. Access DbGate via the Ingress hostname (e.g., `http://dbgate.nuc.chadamberg.com`) or use `kubectl port-forward` for testing:
+1. Access MinIO via the Ingress hostname (e.g., `http://minio.lvh.me`) or use `kubectl port-forward` for testing:
 
 ```bash
-kubectl port-forward svc/dbgate-dbgate 3000:3000 -n dbgate
+kubectl port-forward svc/minio-minio 3000:3000 -n minio
 ```
 
 Then open `http://localhost:3000` in your browser.
@@ -128,36 +125,36 @@ If you encounter the error `pod has unbound immediate PersistentVolumeClaims`, i
 kubectl patch storageclass <storage-class-name> -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
-   - Alternatively, set `dbgate.pvc.storageClassName` to a specific StorageClass name in `values.yaml`.
+- Alternatively, set `minio.pvc.storageClassName` to a specific StorageClass name in `values.yaml`.
 
-2. **Check PVC Status**:
+1. **Check PVC Status**:
    - Verify the PVC is bound:
 
 ```bash
-kubectl get pvc -n dbgate
+kubectl get pvc -n MinIO
 ```
 
-   - If the PVC is `Pending`, describe it for errors:
+- If the PVC is `Pending`, describe it for errors:
 
 ```bash
-kubectl describe pvc dbgate-dbgate-pvc -n dbgate
+kubectl describe pvc MinIO-MinIO-pvc -n MinIO
 ```
 
-3. **Check Pod Events**:
+1. **Check Pod Events**:
    - Describe the pod to diagnose further:
 
 ```bash
-kubectl describe pod -l app=dbgate -n dbgate
+kubectl describe pod -l app=MinIO -n MinIO
 ```
 
-4. **Use a Pre-Provisioned PV (Optional)**:
+1. **Use a Pre-Provisioned PV (Optional)**:
    - If dynamic provisioning is unavailable, create a PV:
 
 ```yaml
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: dbgate-pv
+  name: minio-pv
 spec:
   accessModes:
     - ReadWriteOnce
@@ -166,15 +163,15 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: standard
   hostPath:
-    path: /tmp/dbgate-pv
+    path: /tmp/minio-pv
 ```
 
-   - Apply it:
+- Apply it:
 
 ```bash
 kubectl apply -f pv.yaml
 ```
 
-   - Set `dbgate.pvc.storageClassName: standard` and `dbgate.pvc.selector: dbgate-pv` in `values.yaml`.
+- Set `minio.pvc.storageClassName: standard` and `minio.pvc.selector: MinIO-pv` in `values.yaml`.
 
 {{ template "chart.valuesSection" . }}

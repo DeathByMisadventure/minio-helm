@@ -1,4 +1,4 @@
-# Default values for minio.
+# Default values for minio deployment.
 
 minio:
   # -- Container name
@@ -12,7 +12,9 @@ minio:
     pullPolicy: IfNotPresent
   # -- Number of pod replicas
   replicas: 1
+  # -- MinIO admin username
   adminUser: admin
+  # -- MinIO admin password (must be at least 8 characters)
   adminPassword: miniopassword
   pvc:
     # -- PVC size for /root/.minio
@@ -46,26 +48,47 @@ minio:
     port: 9000
     # -- Console port number
     consolePort: 9001
+  # -- Health probe configurations for MinIO
   probes:
+    # -- Enable or disable health probes
     enabled: true
+    # -- Startup probe to ensure MinIO initializes properly
     startup:
+      # -- Delay before starting probe checks (seconds)
       initialDelaySeconds: 10
+      # -- Interval between probe checks (seconds)
       periodSeconds: 10
+      # -- Timeout for each probe attempt (seconds)
       timeoutSeconds: 5
+      # -- Number of consecutive failures before pod is considered unready
       failureThreshold: 30
+      # -- Number of consecutive successes to pass the probe
       successThreshold: 1
+    # -- Liveness probe to detect if MinIO is running and responsive
     liveness:
+      # -- Delay before starting probe checks (seconds)
       initialDelaySeconds: 60
+      # -- Interval between probe checks (seconds)
       periodSeconds: 30
+      # -- Timeout for each probe attempt (seconds)
       timeoutSeconds: 20
+      # -- Number of consecutive failures before pod is restarted
       failureThreshold: 3
+      # -- Number of consecutive successes to pass the probe
       successThreshold: 1
+    # -- Readiness probe to determine if MinIO can accept traffic
     readiness:
+      # -- Delay before starting probe checks (seconds)
       initialDelaySeconds: 5
+      # -- Interval between probe checks (seconds)
       periodSeconds: 10
+      # -- Timeout for each probe attempt (seconds)
       timeoutSeconds: 5
+      # -- Number of consecutive failures before pod is considered unready
       failureThreshold: 3
+      # -- Number of consecutive successes to pass the probe
       successThreshold: 1
+
 
 # -- Ingress configuration
 ingress:
