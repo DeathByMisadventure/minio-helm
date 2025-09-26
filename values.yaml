@@ -1,0 +1,72 @@
+# Default values for minio.
+
+minio:
+  # -- Container name
+  name: minio
+  image:
+    # -- Image repository
+    repository: minio/minio
+    # -- Image tag (defaults to Chart AppVersion)
+    tag: latest
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+  # -- Number of pod replicas
+  replicas: 1
+  adminUser: admin
+  adminPassword: miniopassword
+  pvc:
+    # -- PVC size for /root/.minio
+    storageRequest: 1Gi
+    # -- Storage Class Name for PVC or pre-provisioned PV
+    storageClassName: ""
+    # -- Selector to match pre-provisioned PV
+    selector: ""
+  # -- Pod assigned resources
+  resources:
+    # limits:
+    #   cpu: "500m"
+    #   memory: "512Mi"
+    # requests:
+    #   cpu: "200m"
+    #   memory: "256Mi"
+  # -- Pod security context
+  securityContext:
+    # allowPrivilegeEscalation: false
+    # runAsNonRoot: false
+    # readOnlyRootFilesystem: true
+    # capabilities:
+    #   drop:
+    #     - ALL
+    # seccompProfile:
+    #   type: RuntimeDefault
+  service:
+    # -- Service type (e.g., ClusterIP)
+    type: ClusterIP
+    # -- Service port number
+    port: 9000
+    # -- Console port number
+    consolePort: 9001
+
+# -- Ingress configuration
+ingress:
+  # -- Enable Ingress
+  enabled: true
+  # -- Ingress class type
+  className: "nginx"
+  # -- Ingress annotations
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+  # -- API external hostname
+  apiHost: minioapi.lvh.me
+  # -- Console external hostname
+  consoleHost: minioconsole.lvh.me
+  # -- TLS configuration with a secret
+  tls: {}
+    # secretName: minio-tls
+    # hosts:
+    #   - minio.lvh.me
+
+# -- Secrets for private image registries
+imagePullSecrets: []
+  # - name: my-registry-secret

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-minio
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.minio.name }}
+spec:
+  replicas: {{ .Values.minio.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.minio.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.minio.name }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.minio.name }}
+          image: "{{ .Values.minio.image.repository }}:{{ if .Values.minio.image.tag }}{{ .Values.minio.image.tag }}{{ else }}{{ .Chart.AppVersion }}{{ end }}"
+          imagePullPolicy: {{ .Values.minio.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.minio.service.port }}
+              protocol: TCP
+            - containerPort: {{ .Values.minio.service.consolePort }}
+              protocol: TCP
+
+          envFrom:
+            - secretRef:
+                name: {{ .Release.Name }}-minio-secret
+          volumeMounts:
+            - name: minio-data
+              mountPath: /data
+          args:
+            - server
+            - /data
+            - --console-address
+            - ":{{ .Values.minio.service.consolePort }}"
+          resources:
+            {{- toYaml .Values.minio.resources | nindent 12 }}
+          {{- if .Values.minio.securityContext }}
+          securityContext:
+            {{- toYaml .Values.minio.securityContext | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: minio-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-minio-pvc
