@@ -8,7 +8,7 @@ minio:
   # -- Enable compression (https://min.io/docs/minio/linux/administration/object-management/data-compression.html)
   compressionEnabled: true
   # -- Enable a lifecycle template on the bucket such as object expiration
-  enableLifecycle: false
+  enableLifecycle: true
   # -- Retention policy lifecycle template such as expiration days
   lifecycleJson: |-
     {"Rules":[{"Expiration":{"Days":365},"ID":"expire-365-days","Status":"Enabled"}]}
