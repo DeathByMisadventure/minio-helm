@@ -20,7 +20,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.minio.name }}-service
+                name: {{ .Values.minio.name }}
                 port:
                   number: {{ .Values.minio.service.port }}
     - host: {{ .Values.ingress.consoleHost }}
@@ -30,7 +30,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.minio.name }}-service
+                name: {{ .Values.minio.name }}
                 port:
                   number: {{ .Values.minio.service.consolePort }}
   {{- if .Values.ingress.tls }}
