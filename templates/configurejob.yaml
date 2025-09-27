@@ -1,5 +1,4 @@
-
-{{- $bucket := printf "%s/%s" .Values.minio.name (default "results" .Values.connections.aws.outputBucketName | replace "s3://" "") }}
+{{- $bucket := printf "%s/%s" .Values.minio.name (default "results" .Values.minio.defaultBucket | replace "s3://" "") }}
 apiVersion: batch/v1
 kind: Job
 metadata:

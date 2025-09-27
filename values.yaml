@@ -48,6 +48,7 @@ minio:
   adminUser: admin
   # -- MinIO admin password (must be at least 8 characters)
   adminPassword: miniopassword
+  defaultBucket: bucket1
   # -- Persistence options
   persistence:
     # -- Persistence accessMode
