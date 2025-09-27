@@ -42,7 +42,7 @@ spec:
           args:
             - server
             {{- if gt (int .Values.minio.replicas) 1 }}
-            - http://{{ .Values.minio.name }}-{0...{{ sub (int .Values.minio.replicas) 1 }}}.{{ .Values.minio.name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.minio.apiPort}}/data
+            - http://{{ .Values.minio.name }}-{0...{{ sub (int .Values.minio.replicas) 1 }}}.{{ .Values.minio.name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.minio.service.port}}/data
             {{- else }}
             - /data
             {{- end }}
