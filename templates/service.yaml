@@ -1,16 +1,15 @@
-{{- if .Values.minio.enabled }}
+
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-minio-service
   labels:
-    app: {{ .Values.minio.name }}
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion }}
 spec:
-  type: ClusterIP
+  clusterIP: None
   ports:
     - name: {{ .Values.minio.name }}-apiport
       protocol: TCP
@@ -22,4 +21,3 @@ spec:
       targetPort: {{ .Values.minio.service.consolePort }}
   selector:
     app: {{ .Values.minio.name }}
-{{- end }}
