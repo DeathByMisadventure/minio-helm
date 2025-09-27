@@ -9,5 +9,3 @@ sources:
   - https://github.com/minio/minio
 keywords:
   - s3
-annotations:
-  artifacthub.io/category: database
