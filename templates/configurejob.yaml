@@ -20,17 +20,13 @@ spec:
         app: {{ .Values.minio.name }}
     spec:
       restartPolicy: Never
-      {{- with .Values.global.imagePullCredentials.secretName }}
-      imagePullSecrets:
-        - name: {{ . }}
-      {{- end }}
       {{- if .Values.minio.serviceAccountName }}
       serviceAccountName: "{{ .Values.minio.serviceAccountName }}"
       {{- end }}
       containers:
         - name: {{ .Values.minio.name }}-configure-job
-          image: {{ include "image.registry" . }}{{ .Values.minio.mcimage }}
-          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          image: {{ .Values.minio.image.mcimage }}}
+          imagePullPolicy: {{ .Values.minio.image.pullPolicy }}
           resources: {{- toYaml .Values.minio.resources | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
