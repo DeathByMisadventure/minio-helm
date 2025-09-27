@@ -99,9 +99,10 @@ helm install --namespace minio -f ./local-values.yaml minio .
 | ingress.consoleHost | string | Console external hostname |
 | ingress.enabled | bool | Enable Ingress |
 | ingress.tls | object | TLS configuration with a secret |
+| minio.accessKey | string | Default credential user access key |
 | minio.adminPassword | string | MinIO admin password (must be at least 8 characters) |
 | minio.adminUser | string | MinIO admin username |
-| minio.compressionEnabled | bool | Enable compression (https://min.io/docs/minio/linux/administration/object-management/data-compression.html) |
+| minio.configurationData | object | Additional configuration options |
 | minio.defaultBucket | string | Create a default bucket if set |
 | minio.enableLifecycle | bool | Enable a lifecycle template on the bucket such as object expiration |
 | minio.image.mcimage | string | mc image name used for configuration job |
@@ -133,11 +134,9 @@ helm install --namespace minio -f ./local-values.yaml minio .
 | minio.probes.startup.periodSeconds | int | Interval between probe checks (seconds) |
 | minio.probes.startup.successThreshold | int | Number of consecutive successes to pass the probe |
 | minio.probes.startup.timeoutSeconds | int | Timeout for each probe attempt (seconds) |
-| minio.pvc.selector | string | Selector to match pre-provisioned PV |
-| minio.pvc.storageClassName | string | Storage Class Name for PVC or pre-provisioned PV |
-| minio.pvc.storageRequest | string | PVC size for /root/.minio |
 | minio.replicas | int | Number of pod replicas |
 | minio.resources | object | Pod assigned resources |
+| minio.secretKey | string | Default credential user secret key |
 | minio.securityContext | object | Pod security context |
 | minio.service.consolePort | int | Console port number |
 | minio.service.port | int | Service port number |

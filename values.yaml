@@ -19,8 +19,6 @@ minio:
     MINIO_COMPRESSION_EXTENSIONS: "*"
   # -- Name of the service account
   serviceAccountName:
-  # -- Enable compression (https://min.io/docs/minio/linux/administration/object-management/data-compression.html)
-  compressionEnabled: false
   # -- Enable a lifecycle template on the bucket such as object expiration
   enableLifecycle: true
   # -- Retention policy lifecycle template such as expiration days
