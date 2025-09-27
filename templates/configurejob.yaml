@@ -89,5 +89,4 @@ spec:
               mc admin config set {{ .Values.minio.name }} compression extensions= mime_types= &&
               {{- end }}
               mc admin info {{ .Values.minio.name }}
-              {{ include "linkerd.shutdown" . }}
               exit 0;
