@@ -72,14 +72,13 @@ minio:
       memory: "256Mi"
   # -- Pod security context
   securityContext:
-    allowPrivilegeEscalation: false
-    runAsNonRoot: false
-    readOnlyRootFilesystem: true
-    capabilities:
-      drop:
-        - ALL
+    privileged: true
+    allowPrivilegeEscalation: true
     seccompProfile:
       type: RuntimeDefault
+    capabilities:
+      drop:
+        - all
   service:
     # -- Service type (e.g., ClusterIP)
     type: ClusterIP

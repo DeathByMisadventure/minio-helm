@@ -28,14 +28,7 @@ spec:
           image: {{ .Values.minio.image.mcimage }}
           imagePullPolicy: {{ .Values.minio.image.pullPolicy }}
           resources: {{- toYaml .Values.minio.resources | nindent 12 }}
-          # securityContext:
-          #   allowPrivilegeEscalation: false
-          #   capabilities:
-          #     drop:
-          #       - all
-          #   privileged: true
-          #   seccompProfile:
-          #     type: RuntimeDefault
+          securityContext: {{- toYaml .Values.minio.securityContext | nindent 12 }}
           envFrom:
             - configMapRef:
                 name: {{ .Values.minio.name }}-config
