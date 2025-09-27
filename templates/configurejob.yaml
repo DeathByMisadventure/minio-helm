@@ -25,7 +25,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Values.minio.name }}-configure-job
-          image: {{ .Values.minio.image.mcimage }}}
+          image: {{ .Values.minio.image.mcimage }}
           imagePullPolicy: {{ .Values.minio.image.pullPolicy }}
           resources: {{- toYaml .Values.minio.resources | nindent 12 }}
           securityContext:
