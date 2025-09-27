@@ -53,7 +53,7 @@ spec:
               RETRY_COUNT=0
               MAX_RETRIES=20
               # Wait for mc alias set
-              until mc alias set {{ .Values.minio.name }} http://{{ .Values.minio.name }}-0.{{ .Values.minio.name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.minio.apiPort }} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} || [ $RETRY_COUNT -ge $MAX_RETRIES ]; do
+              until mc alias set {{ .Values.minio.name }} http://{{ .Values.minio.name }}-0.{{ .Values.minio.name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.minio.service.port }} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} || [ $RETRY_COUNT -ge $MAX_RETRIES ]; do
                 sleep 5
                 RETRY_COUNT=$((RETRY_COUNT + 1))
               done
