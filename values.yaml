@@ -17,6 +17,7 @@ minio:
     MINIO_BROWSER: "on"
     MINIO_COMPRESSION_ENABLE: "on"
     MINIO_COMPRESSION_EXTENSIONS: "*"
+    MINIO_COMPRESSION_MIME_TYPES: "*"
   # -- Name of the service account
   serviceAccountName:
   # -- Enable a lifecycle template on the bucket such as object expiration
