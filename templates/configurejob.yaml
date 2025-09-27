@@ -1,4 +1,4 @@
-{{- if .Values.minio.enabled }}
+
 {{- $bucket := printf "%s/%s" .Values.minio.name (default "results" .Values.connections.aws.outputBucketName | replace "s3://" "") }}
 apiVersion: batch/v1
 kind: Job
@@ -13,7 +13,7 @@ metadata:
   annotations:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-delete-policy": before-hook-creation #,hook-succeeded
 spec:
   template:
     metadata:
@@ -41,19 +41,12 @@ spec:
             privileged: false
             seccompProfile:
               type: RuntimeDefault
-          env:
-            - name: MINIO_ROOT_USER
-              valueFrom:
-                secretKeyRef:
-                  key: AWS_ACCESS_KEY_ID
-                  name: common-env-secret
-            - name: MINIO_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: AWS_SECRET_ACCESS_KEY
-                  name: common-env-secret
-          {{- if .Values.minio.tier.enabled }}
           envFrom:
+            - configMapRef:
+                name: {{ .Values.minio.name }}-config
+            - secretRef:
+                name: {{ .Values.minio.name }}-secret
+          {{- if .Values.minio.tier.enabled }}
             - secretRef:
                name: {{ .Values.minio.name }}-aws-tier-env-secret
           {{- end }}
@@ -103,4 +96,3 @@ spec:
               mc admin info {{ .Values.minio.name }}
               {{ include "linkerd.shutdown" . }}
               exit 0;
-{{- end }}
