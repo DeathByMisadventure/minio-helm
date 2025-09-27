@@ -1,0 +1,106 @@
+{{- if .Values.minio.enabled }}
+{{- $bucket := printf "%s/%s" .Values.minio.name (default "results" .Values.connections.aws.outputBucketName | replace "s3://" "") }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.minio.name }}-configure-job
+  labels:
+    app: {{ .Values.minio.name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.minio.name }}
+    spec:
+      restartPolicy: Never
+      {{- with .Values.global.imagePullCredentials.secretName }}
+      imagePullSecrets:
+        - name: {{ . }}
+      {{- end }}
+      {{- if .Values.minio.serviceAccountName }}
+      serviceAccountName: "{{ .Values.minio.serviceAccountName }}"
+      {{- end }}
+      containers:
+        - name: {{ .Values.minio.name }}-configure-job
+          image: {{ include "image.registry" . }}{{ .Values.minio.mcimage }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          resources: {{- toYaml .Values.minio.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_ACCESS_KEY_ID
+                  name: common-env-secret
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: AWS_SECRET_ACCESS_KEY
+                  name: common-env-secret
+          {{- if .Values.minio.tier.enabled }}
+          envFrom:
+            - secretRef:
+               name: {{ .Values.minio.name }}-aws-tier-env-secret
+          {{- end }}
+          command:
+            - "/bin/sh"
+            - "-c"
+          args:
+            - |
+              RETRY_COUNT=0
+              MAX_RETRIES=20
+              # Wait for mc alias set
+              until mc alias set {{ .Values.minio.name }} http://{{ .Values.minio.name }}-0.{{ .Values.minio.name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.minio.apiPort }} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} || [ $RETRY_COUNT -ge $MAX_RETRIES ]; do
+                sleep 5
+                RETRY_COUNT=$((RETRY_COUNT + 1))
+              done
+              if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+                echo "Failed to configure MinIO after $MAX_RETRIES attempts"
+                exit 1
+              fi
+
+              mc --version
+              mc admin info {{ .Values.minio.name }}
+              mc ready {{ .Values.minio.name }}
+              # Create bucket
+              mc mb {{ $bucket }} --ignore-existing
+              # Wait for bucket readiness
+              until mc stat {{ $bucket }} >/dev/null 2>&1; do
+                echo "Waiting for {{ $bucket }} to become ready..."
+                sleep 2
+              done
+              {{- if .Values.minio.tier.enabled }}
+              # Add remote tier (idempotent if already exists, but may need handling for updates)
+              mc tier add {{ .Values.minio.tier.type }} {{ .Values.minio.name }} {{ .Values.minio.tier.name }} --endpoint {{ .Values.minio.tier.endpoint }} --access-key ${TIER_ACCESS_KEY} --secret-key ${TIER_SECRET_KEY} --bucket {{ .Values.minio.tier.bucket }}{{ if .Values.minio.tier.prefix }} --prefix {{ .Values.minio.tier.prefix }}{{ end }}{{ if .Values.minio.tier.region }} --region {{ .Values.minio.tier.region }}{{ end }} || true
+              {{- end }}
+              {{- if .Values.minio.enableLifecycle }}
+              # Remove existing rules
+              mc ilm rule rm --all --force {{ $bucket }}
+              # Apply lifecycle rule by importing explicit JSON
+              echo {{ .Values.minio.lifecycleJson | quote }} | mc ilm import {{ $bucket }}
+              mc ilm rule ls {{ $bucket }}
+              mc ilm export {{ $bucket }}
+              {{- end -}}
+              {{- if .Values.minio.compressionEnabled }}
+              mc admin config set {{ .Values.minio.name }} compression enable=on &&
+              mc admin config set {{ .Values.minio.name }} compression extensions= mime_types= &&
+              {{- end }}
+              mc admin info {{ .Values.minio.name }}
+              {{ include "linkerd.shutdown" . }}
+              exit 0;
+{{- end }}

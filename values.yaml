@@ -3,6 +3,36 @@
 minio:
   # -- Container name
   name: minio
+  # -- Name of the service account
+  serviceAccountName:
+  # -- Enable compression (https://min.io/docs/minio/linux/administration/object-management/data-compression.html)
+  compressionEnabled: true
+  # -- Enable a lifecycle template on the bucket such as object expiration
+  enableLifecycle: false
+  # -- Retention policy lifecycle template such as expiration days
+  lifecycleJson: |-
+    {"Rules":[{"Expiration":{"Days":365},"ID":"expire-365-days","Status":"Enabled"}]}
+  tier:
+    # -- Enable tiering configuration for ILM (requires lifecycleJson to include a Transition rule referencing the tier name)
+    enabled: false
+    # example lifecycleJson:
+    # {"Rules":[{"ID":"transition-to-coldtier","Status":"Enabled","Filter":{"Prefix":""},"Transition":{"Days":90,"StorageClass":"coldtier"}]}
+    # -- Tier name (must match the StorageClass in any Transition rules in lifecycleJson)
+    name: "coldtier"
+    # -- Tier type (e.g., 's3' for S3-compatible, 'azure', 'gcs')
+    type: s3
+    # -- Endpoint URL for the remote tier storage
+    endpoint: "https://coldminio.domain.com:9000"
+    # -- Bucket name on the remote tier storage
+    bucket: "minio-cold-bucket"
+    # -- Optional: Prefix on the remote bucket (add --prefix flag if set)
+    prefix: ""
+    # -- Optional: Region for the remote tier
+    region: ""
+    # -- Tier access key
+    accessKey: ""
+    # -- Tier secret key
+    secretKey: ""
   image:
     # -- Image repository
     repository: minio/minio
@@ -10,12 +40,20 @@ minio:
     tag: latest
     # -- Image pull policy
     pullPolicy: IfNotPresent
+    # -- mc image name used for configuration job
+    mcimage: minio/mc:latest
   # -- Number of pod replicas
   replicas: 1
   # -- MinIO admin username
   adminUser: admin
   # -- MinIO admin password (must be at least 8 characters)
   adminPassword: miniopassword
+  # -- Persistence options
+  persistence:
+    # -- Persistence accessMode
+    accessMode: ReadWriteOnce
+    # -- Persistence volume size
+    size: 32Gi
   pvc:
     # -- PVC size for /root/.minio
     storageRequest: 1Gi

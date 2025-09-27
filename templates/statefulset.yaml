@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.minio.name }}
+  labels:
+    app: {{ .Values.minio.name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+spec:
+  replicas: {{ .Values.minio.replicas }}
+  revisionHistoryLimit: 1
+  serviceName: {{ .Values.minio.name }}
+  selector:
+    matchLabels:
+      app: {{ .Values.minio.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.minio.name }}
+      annotations:
+        checksum/minioconfig: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/miniosecret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      {{- with .Values.minio.serviceAccountName }}
+      serviceAccountName: "{{ . }}"
+      {{- end }}
+      securityContext:
+        fsGroup: 1001
+      containers:
+        - name: {{ .Values.minio.name }}
+          image: {{ .Values.minio.image.repository }}:{{ .Values.minio.image.tag }}
+          imagePullPolicy: {{ .Values.minio.image.pullPolicy }}
+          resources: {{- toYaml .Values.minio.resources | nindent 12 }}
+          securityContext: {{- toYaml .Values.minio.securityContext | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.minio.name }}-config
+            - secretRef:
+                name: {{ .Values.minio.name }}-secret
+          args:
+            - server
+            {{- if gt (int .Values.minio.replicas) 1 }}
+            - http://{{ .Values.minio.name }}-{0...{{ sub (int .Values.minio.replicas) 1 }}}.{{ .Values.minio.name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.minio.apiPort}}/data
+            {{- else }}
+            - /data
+            {{- end }}
+            - --console-address
+            - ":{{ .Values.minio.service.consolePort }}"
+          volumeMounts:
+          - name: {{ .Values.minio.name }}-pvc
+            mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ .Values.minio.name }}-pvc
+    spec:
+      accessModes:
+        - {{ .Values.minio.persistence.accessMode }}
+      resources:
+        requests:
+          storage: {{ .Values.minio.persistence.size }}
