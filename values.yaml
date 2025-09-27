@@ -12,6 +12,9 @@ minio:
     pullPolicy: IfNotPresent
     # -- mc image name used for configuration job
     mcimage: minio/mc:latest
+  # -- Additional configuration options
+  configurationData:
+    MINIO_BROWSER: "on"
   # -- Name of the service account
   serviceAccountName:
   # -- Enable compression (https://min.io/docs/minio/linux/administration/object-management/data-compression.html)
