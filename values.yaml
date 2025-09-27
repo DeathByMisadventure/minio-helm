@@ -3,6 +3,15 @@
 minio:
   # -- Container name
   name: minio
+  image:
+    # -- Image repository
+    repository: minio/minio
+    # -- Image tag (defaults to Chart AppVersion)
+    tag: latest
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+    # -- mc image name used for configuration job
+    mcimage: minio/mc:latest
   # -- Name of the service account
   serviceAccountName:
   # -- Enable compression (https://min.io/docs/minio/linux/administration/object-management/data-compression.html)
@@ -25,7 +34,7 @@ minio:
     endpoint: "https://coldminio.domain.com:9000"
     # -- Bucket name on the remote tier storage
     bucket: "minio-cold-bucket"
-    # -- Optional: Prefix on the remote bucket (add --prefix flag if set)
+    # -- Optional: Prefix on the remote bucket: add prefix flag if set
     prefix: ""
     # -- Optional: Region for the remote tier
     region: ""
@@ -33,21 +42,13 @@ minio:
     accessKey: ""
     # -- Tier secret key
     secretKey: ""
-  image:
-    # -- Image repository
-    repository: minio/minio
-    # -- Image tag (defaults to Chart AppVersion)
-    tag: latest
-    # -- Image pull policy
-    pullPolicy: IfNotPresent
-    # -- mc image name used for configuration job
-    mcimage: minio/mc:latest
   # -- Number of pod replicas
   replicas: 1
   # -- MinIO admin username
   adminUser: admin
   # -- MinIO admin password (must be at least 8 characters)
   adminPassword: miniopassword
+  # -- Create a default bucket if set
   defaultBucket: bucket1
   # -- Persistence options
   persistence:

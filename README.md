@@ -41,22 +41,6 @@ Customize the deployment by editing `values.yaml` or creating a `local-values.ya
 - `ingress`: Enable and configure Ingress for external access.
 - `resources` and `securityContext`: Define resource limits and security settings.
 
-## Dynamic PVC Provisioning
-
-This chart uses dynamic provisioning for the PVC by default, with `minio.pvc.storageClassName` set to `""` to use the cluster's default StorageClass. Ensure your cluster has a default StorageClass configured:
-
-```bash
-kubectl get storageclass
-```
-
-Look for a StorageClass with `(default)` in the output. If none exists, create or annotate a StorageClass as default:
-
-```bash
-kubectl patch storageclass <storage-class-name> -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-```
-
-If you prefer a specific StorageClass, set `minio.pvc.storageClassName` to its name in `values.yaml`.
-
 ## Enabling Ingress
 
 If you lack an Ingress controller, enable `ingress.enabled` in `values.yaml` to use an external Ingress solution or configure one separately. For NGINX Ingress, set `ingress.className` to `nginx` and provide TLS settings if needed.
@@ -100,77 +84,8 @@ kubectl create ns MinIO
 1. Install the Helm chart:
 
 ```bash
-helm install --namespace MinIO -f ./local-values.yaml minio .
+helm install --namespace minio -f ./local-values.yaml minio .
 ```
-
-1. Access MinIO via the Ingress hostname (e.g., `http://minio.lvh.me`) or use `kubectl port-forward` for testing:
-
-```bash
-kubectl port-forward svc/minio-minio 3000:3000 -n minio
-```
-
-Then open `http://localhost:3000` in your browser.
-
-## Troubleshooting PVC Binding Issues
-
-If you encounter the error `pod has unbound immediate PersistentVolumeClaims`, it means the PVC cannot bind to a Persistent Volume. To resolve:
-
-1. **Verify Default StorageClass**:
-   - Run `kubectl get storageclass` to confirm a default StorageClass exists (marked with `(default)`).
-   - If none is set, annotate an existing StorageClass as default:
-
-```bash
-kubectl patch storageclass <storage-class-name> -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-```
-
-- Alternatively, set `minio.pvc.storageClassName` to a specific StorageClass name in `values.yaml`.
-
-1. **Check PVC Status**:
-   - Verify the PVC is bound:
-
-```bash
-kubectl get pvc -n MinIO
-```
-
-- If the PVC is `Pending`, describe it for errors:
-
-```bash
-kubectl describe pvc MinIO-MinIO-pvc -n MinIO
-```
-
-1. **Check Pod Events**:
-   - Describe the pod to diagnose further:
-
-```bash
-kubectl describe pod -l app=MinIO -n MinIO
-```
-
-1. **Use a Pre-Provisioned PV (Optional)**:
-   - If dynamic provisioning is unavailable, create a PV:
-
-```yaml
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: minio-pv
-spec:
-  accessModes:
-    - ReadWriteOnce
-  capacity:
-    storage: 1Gi
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: standard
-  hostPath:
-    path: /tmp/minio-pv
-```
-
-- Apply it:
-
-```bash
-kubectl apply -f pv.yaml
-```
-
-- Set `minio.pvc.storageClassName: standard` and `minio.pvc.selector: MinIO-pv` in `values.yaml`.
 
 ## Values
 
@@ -186,10 +101,18 @@ kubectl apply -f pv.yaml
 | ingress.tls | object | TLS configuration with a secret |
 | minio.adminPassword | string | MinIO admin password (must be at least 8 characters) |
 | minio.adminUser | string | MinIO admin username |
+| minio.compressionEnabled | bool | Enable compression (https://min.io/docs/minio/linux/administration/object-management/data-compression.html) |
+| minio.defaultBucket | string | Create a default bucket if set |
+| minio.enableLifecycle | bool | Enable a lifecycle template on the bucket such as object expiration |
+| minio.image.mcimage | string | mc image name used for configuration job |
 | minio.image.pullPolicy | string | Image pull policy |
 | minio.image.repository | string | Image repository |
 | minio.image.tag | string | Image tag (defaults to Chart AppVersion) |
+| minio.lifecycleJson | string | Retention policy lifecycle template such as expiration days |
 | minio.name | string | Container name |
+| minio.persistence | object | Persistence options |
+| minio.persistence.accessMode | string | Persistence accessMode |
+| minio.persistence.size | string | Persistence volume size |
 | minio.probes | object | Health probe configurations for MinIO |
 | minio.probes.enabled | bool | Enable or disable health probes |
 | minio.probes.liveness | object | Liveness probe to detect if MinIO is running and responsive |
@@ -219,3 +142,13 @@ kubectl apply -f pv.yaml
 | minio.service.consolePort | int | Console port number |
 | minio.service.port | int | Service port number |
 | minio.service.type | string | Service type (e.g., ClusterIP) |
+| minio.serviceAccountName | string | Name of the service account |
+| minio.tier.accessKey | string | Tier access key |
+| minio.tier.bucket | string | Bucket name on the remote tier storage |
+| minio.tier.enabled | bool | Enable tiering configuration for ILM (requires lifecycleJson to include a Transition rule referencing the tier name) |
+| minio.tier.endpoint | string | Endpoint URL for the remote tier storage |
+| minio.tier.name | string | Tier name (must match the StorageClass in any Transition rules in lifecycleJson) |
+| minio.tier.prefix | string | Optional: Prefix on the remote bucket: add prefix flag if set |
+| minio.tier.region | string | Optional: Region for the remote tier |
+| minio.tier.secretKey | string | Tier secret key |
+| minio.tier.type | string | Tier type (e.g., 's3' for S3-compatible, 'azure', 'gcs') |
