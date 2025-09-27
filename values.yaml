@@ -48,6 +48,10 @@ minio:
   adminUser: admin
   # -- MinIO admin password (must be at least 8 characters)
   adminPassword: miniopassword
+  # -- Default credential user access key
+  accessKey: minioaccesskey
+  # -- Default credential user secret key
+  secretKey: miniosecretkey
   # -- Create a default bucket if set
   defaultBucket: bucket1
   # -- Persistence options
@@ -56,13 +60,6 @@ minio:
     accessMode: ReadWriteOnce
     # -- Persistence volume size
     size: 32Gi
-  pvc:
-    # -- PVC size for /root/.minio
-    storageRequest: 1Gi
-    # -- Storage Class Name for PVC or pre-provisioned PV
-    storageClassName: ""
-    # -- Selector to match pre-provisioned PV
-    selector: ""
   # -- Pod assigned resources
   resources:
     limits:

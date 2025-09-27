@@ -58,6 +58,12 @@ spec:
               mc --version
               mc admin info {{ .Values.minio.name }}
               mc ready {{ .Values.minio.name }}
+
+              # Create default credentials
+              mc admin user add {{ .Values.minio.name }} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+              mc admin policy set {{ .Values.minio.name }} readwrite user=${MINIO_ACCESS_KEY}
+              mc admin user info {{ .Values.minio.name }} ${MINIO_ACCESS_KEY}
+
               {{- if .Values.minio.defaultBucket }}
               # Create bucket
               mc mb {{ $bucket }} --ignore-existing
