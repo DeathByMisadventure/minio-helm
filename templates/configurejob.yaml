@@ -86,9 +86,9 @@ spec:
               mc ilm rule ls {{ $bucket }}
               mc ilm export {{ $bucket }}
               {{- end }}
-              {{ if .Values.minio.compression.enabled }}mc admin config set {{ .Values.minio.name }} compression enable {{ if .Values.minio.compression.enabled }}on{{ else }}off{{ end }}
-              {{ if .Values.minio.compression.extensions }}mc admin config set {{ .Values.minio.name }} compression extensions "{{ .Values.minio.compression.extensions }}"{{ else }}mc admin config set {{ .Values.minio.name }} compression extensions ""{{ end }}
-              {{ if .Values.minio.compression.mimeTypes }}mc admin config set {{ .Values.minio.name }} compression mime_types "{{ .Values.minio.compression.mimeTypes }}"{{ else }}mc admin config set {{ .Values.minio.name }} compression mime_types ""{{ end }}
+              {{ if .Values.minio.compression.enabled }}mc admin config set {{ .Values.minio.name }} compression enable={{ if .Values.minio.compression.enabled }}on{{ else }}off{{ end }}
+              {{ if .Values.minio.compression.extensions }}mc admin config set {{ .Values.minio.name }} compression extensions="{{ .Values.minio.compression.extensions }}"{{ else }}mc admin config set {{ .Values.minio.name }} compression extensions=""{{ end }}
+              {{ if .Values.minio.compression.mimeTypes }}mc admin config set {{ .Values.minio.name }} compression mime_types="{{ .Values.minio.compression.mimeTypes }}"{{ else }}mc admin config set {{ .Values.minio.name }} compression mime_types=""{{ end }}
               echo "Compression Settings: "
               mc admin config get {{ .Values.minio.name }} compression
               {{- end }}
