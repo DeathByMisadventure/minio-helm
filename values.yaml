@@ -48,7 +48,7 @@ minio:
     # -- Tier secret key
     secretKey: ""
   # -- Number of pod replicas
-  replicaCount: 4
+  replicaCount: 1
   # -- MinIO admin username
   adminUser: admin
   # -- MinIO admin password (must be at least 8 characters)
