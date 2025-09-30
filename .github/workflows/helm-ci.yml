@@ -27,7 +27,7 @@ jobs:
         uses: helm/kind-action@v1.10.0
         with:
           version: v0.24.0
-          clusterName: helm-test-cluster
+          cluster_name: helm-test-cluster
 
       # Run helm lint to validate chart syntax
       - name: Run helm lint
