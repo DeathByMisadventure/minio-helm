@@ -32,13 +32,13 @@ jobs:
       # Run helm lint to validate chart syntax
       - name: Run helm lint
         run: |
-          helm lint ./minio-helm
+          helm lint ./
         working-directory: ${{ github.workspace }}
 
       # Run helm template to verify rendering
       - name: Run helm template
         run: |
-          helm template test-release ./minio-helm \
+          helm template test-release ./ \
             --set replicas=1 \
             --set persistence.enabled=true \
             --set ingress.enabled=false \
@@ -49,7 +49,7 @@ jobs:
       # Run helm install dry-run against kind cluster
       - name: Run helm install dry-run
         run: |
-          helm install test-release ./minio-helm \
+          helm install test-release ./ \
             --dry-run \
             --set replicas=1 \
             --set persistence.enabled=true \
