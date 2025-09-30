@@ -1,0 +1,66 @@
+name: Helm Chart CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-template:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Helm
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.15.4 # Use a stable Helm version
+
+      # Install kind for dry-run cluster
+      - name: Set up kind
+        uses: helm/kind-action@v1.10.0
+        with:
+          version: v0.24.0
+          clusterName: helm-test-cluster
+
+      # Run helm lint to validate chart syntax
+      - name: Run helm lint
+        run: |
+          helm lint ./minio-helm
+        working-directory: ${{ github.workspace }}
+
+      # Run helm template to verify rendering
+      - name: Run helm template
+        run: |
+          helm template test-release ./minio-helm \
+            --set replicas=1 \
+            --set persistence.enabled=true \
+            --set ingress.enabled=false \
+            > rendered-template.yaml
+          cat rendered-template.yaml
+        working-directory: ${{ github.workspace }}
+
+      # Run helm install dry-run against kind cluster
+      - name: Run helm install dry-run
+        run: |
+          helm install test-release ./minio-helm \
+            --dry-run \
+            --set replicas=1 \
+            --set persistence.enabled=true \
+            --set ingress.enabled=false \
+            --namespace default
+        working-directory: ${{ github.workspace }}
+
+      # Optional: Validate rendered manifests with kubeval
+      - name: Validate Kubernetes manifests
+        run: |
+          curl -LO https://github.com/instrumenta/kubeval/releases/download/v0.16.1/kubeval-linux-amd64.tar.gz
+          tar -xzf kubeval-linux-amd64.tar.gz
+          ./kubeval rendered-template.yaml --strict
+        working-directory: ${{ github.workspace }}

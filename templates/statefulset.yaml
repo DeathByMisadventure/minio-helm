@@ -12,7 +12,7 @@ spec:
   selector:
     matchLabels:
       app: {{ .Values.minio.name }}
-  replicas: {{ .Values.minio.replicas }}
+  replicas: {{ .Values.minio.replicaCount }}
   revisionHistoryLimit: 1
   serviceName: {{ .Values.minio.name }}
   updateStrategy:
