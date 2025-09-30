@@ -84,6 +84,6 @@ spec:
               echo {{ .Values.minio.lifecycleJson | quote }} | mc ilm import {{ $bucket }}
               mc ilm rule ls {{ $bucket }}
               mc ilm export {{ $bucket }}
-              {{- end -}}
+              {{- end }}
               mc admin info {{ .Values.minio.name }}
               exit 0;
