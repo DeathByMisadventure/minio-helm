@@ -57,13 +57,22 @@ spec:
               port: {{ .Values.minio.service.port }}
           args:
             - server
-            {{- if gt (int .Values.minio.replicas) 1 }}
+            {{- if gt (int .Values.minio.replicaCount) 1 }}
             - http://{{ .Values.minio.name }}-{0...{{ sub (int .Values.minio.replicas) 1 }}}.{{ .Values.minio.name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.minio.service.port}}/data
             {{- else }}
             - /data
             {{- end }}
             - --console-address
             - ":{{ .Values.minio.service.consolePort }}"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    echo "Waiting 10s for graceful shutdown..."
+                    sleep 10
           volumeMounts:
           - name: {{ .Values.minio.name }}-pvc
             mountPath: /data
@@ -73,6 +82,7 @@ spec:
     spec:
       accessModes:
         - {{ .Values.minio.persistence.accessMode }}
+      storageClassName: {{ .Values.minio.persistence.storageClass }}
       resources:
         requests:
           storage: {{ .Values.minio.persistence.size }}
