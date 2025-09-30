@@ -82,7 +82,9 @@ spec:
     spec:
       accessModes:
         - {{ .Values.minio.persistence.accessMode }}
-      storageClassName: {{ .Values.minio.persistence.storageClass }}
+      {{- with .Values.minio.persistence.storageClass }}
+      storageClassName: {{ . }}
+      {{- end }}
       resources:
         requests:
           storage: {{ .Values.minio.persistence.size }}

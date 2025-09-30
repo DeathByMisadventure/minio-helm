@@ -46,6 +46,16 @@ jobs:
           cat rendered-template.yaml
         working-directory: ${{ github.workspace }}
 
+      # Scan Helm chart for misconfigurations using Trivy
+      - name: Trivy Helm config scan
+        uses: aquasecurity/trivy-action@v1
+        with:
+          scan-type: config
+          format: table
+          exit-code: 1           # Fail the workflow on high/critical issues
+          target: ./             # Path to your Helm chart
+        working-directory: ${{ github.workspace }}
+
       # Run helm install dry-run against kind cluster
       - name: Run helm install dry-run
         run: |
