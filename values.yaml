@@ -16,8 +16,6 @@ minio:
   configurationData:
     MINIO_BROWSER: "on"
     MINIO_COMPRESSION_ENABLE: "on"
-    MINIO_COMPRESSION_EXTENSIONS: "*"
-    MINIO_COMPRESSION_MIME_TYPES: "*"
     MC_CONFIG_DIR: /tmp/.mc
   # -- Name of the service account
   serviceAccountName:
