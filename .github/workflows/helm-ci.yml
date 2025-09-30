@@ -54,7 +54,6 @@ jobs:
           format: table
           exit-code: 1           # Fail the workflow on high/critical issues
           target: ./             # Path to your Helm chart
-        working-directory: ${{ github.workspace }}
 
       # Run helm install dry-run against kind cluster
       - name: Run helm install dry-run
