@@ -82,8 +82,12 @@ spec:
               mc ilm rule rm --all --force {{ $bucket }}
               # Apply lifecycle rule by importing explicit JSON
               echo {{ .Values.minio.lifecycleJson | quote }} | mc ilm import {{ $bucket }}
+              echo "Lifecycle Rules Applied: "
               mc ilm rule ls {{ $bucket }}
               mc ilm export {{ $bucket }}
               {{- end }}
+              echo "Compression Settings: "
+              mc admin config get {{ .Values.minio.name }} compression
+              echo "Tiering Settings: "
               mc admin info {{ .Values.minio.name }}
               exit 0;
