@@ -74,13 +74,14 @@ minio:
       memory: "256Mi"
   # -- Pod security context
   securityContext:
-    privileged: true
-    allowPrivilegeEscalation: true
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
     seccompProfile:
       type: RuntimeDefault
-    capabilities:
-      drop:
-        - all
   service:
     # -- Service type (e.g., ClusterIP)
     type: ClusterIP
@@ -93,19 +94,19 @@ minio:
     # -- Enable or disable health probes
     enabled: true
     # -- Startup probe to ensure MinIO initializes properly
-    startup:
+    startupProbe:
       # -- Delay before starting probe checks (seconds)
       initialDelaySeconds: 10
       # -- Interval between probe checks (seconds)
-      periodSeconds: 10
+      periodSeconds: 5
       # -- Timeout for each probe attempt (seconds)
       timeoutSeconds: 5
       # -- Number of consecutive failures before pod is considered unready
-      failureThreshold: 30
+      failureThreshold: 10
       # -- Number of consecutive successes to pass the probe
       successThreshold: 1
     # -- Liveness probe to detect if MinIO is running and responsive
-    liveness:
+    livenessProbe:
       # -- Delay before starting probe checks (seconds)
       initialDelaySeconds: 60
       # -- Interval between probe checks (seconds)
@@ -117,7 +118,7 @@ minio:
       # -- Number of consecutive successes to pass the probe
       successThreshold: 1
     # -- Readiness probe to determine if MinIO can accept traffic
-    readiness:
+    readinessProbe:
       # -- Delay before starting probe checks (seconds)
       initialDelaySeconds: 5
       # -- Interval between probe checks (seconds)

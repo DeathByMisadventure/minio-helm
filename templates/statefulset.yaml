@@ -9,12 +9,16 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion }}
 spec:
-  replicas: {{ .Values.minio.replicas }}
-  revisionHistoryLimit: 1
-  serviceName: {{ .Values.minio.name }}
   selector:
     matchLabels:
       app: {{ .Values.minio.name }}
+  replicas: {{ .Values.minio.replicas }}
+  revisionHistoryLimit: 1
+  serviceName: {{ .Values.minio.name }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
   template:
     metadata:
       labels:
@@ -39,6 +43,18 @@ spec:
                 name: {{ .Values.minio.name }}-config
             - secretRef:
                 name: {{ .Values.minio.name }}-secret
+          startupProbe: {{- toYaml .Values.minio.probes.startupProbe | nindent 12 }}
+            httpGet:
+              path: /minio/health/live
+              port: {{ .Values.minio.service.port }}
+          livenessProbe: {{- toYaml .Values.minio.probes.livenessProbe | nindent 12 }}
+            httpGet:
+              path: /minio/health/live
+              port: {{ .Values.minio.service.port }}
+          readinessProbe: {{- toYaml .Values.minio.probes.readinessProbe | nindent 12 }}
+            httpGet:
+              path: /minio/health/ready
+              port: {{ .Values.minio.service.port }}
           args:
             - server
             {{- if gt (int .Values.minio.replicas) 1 }}
