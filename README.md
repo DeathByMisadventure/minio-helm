@@ -102,6 +102,10 @@ helm install --namespace minio -f ./local-values.yaml minio .
 | minio.accessKey | string | Default credential user access key |
 | minio.adminPassword | string | MinIO admin password (must be at least 8 characters) |
 | minio.adminUser | string | MinIO admin username |
+| minio.compression | object | Enable compression for all files (use with caution, may increase CPU usage) |
+| minio.compression.enabled | bool | Enable or disable compression |
+| minio.compression.extensions | string | Comma-separated list of file extensions to compress (e.g., '.txt,.log,.json') |
+| minio.compression.mimeTypes | string | Comma-separated list of MIME types to compress (e.g., 'text/plain,application/json') |
 | minio.configurationData | object | Additional configuration options |
 | minio.defaultBucket | string | Create a default bucket if set |
 | minio.enableLifecycle | bool | Enable a lifecycle template on the bucket such as object expiration |
@@ -114,26 +118,27 @@ helm install --namespace minio -f ./local-values.yaml minio .
 | minio.persistence | object | Persistence options |
 | minio.persistence.accessMode | string | Persistence accessMode |
 | minio.persistence.size | string | Persistence volume size |
+| minio.persistence.storageClass | string | Storage class name for persistence |
 | minio.probes | object | Health probe configurations for MinIO |
 | minio.probes.enabled | bool | Enable or disable health probes |
-| minio.probes.liveness | object | Liveness probe to detect if MinIO is running and responsive |
-| minio.probes.liveness.failureThreshold | int | Number of consecutive failures before pod is restarted |
-| minio.probes.liveness.initialDelaySeconds | int | Delay before starting probe checks (seconds) |
-| minio.probes.liveness.periodSeconds | int | Interval between probe checks (seconds) |
-| minio.probes.liveness.successThreshold | int | Number of consecutive successes to pass the probe |
-| minio.probes.liveness.timeoutSeconds | int | Timeout for each probe attempt (seconds) |
-| minio.probes.readiness | object | Readiness probe to determine if MinIO can accept traffic |
-| minio.probes.readiness.failureThreshold | int | Number of consecutive failures before pod is considered unready |
-| minio.probes.readiness.initialDelaySeconds | int | Delay before starting probe checks (seconds) |
-| minio.probes.readiness.periodSeconds | int | Interval between probe checks (seconds) |
-| minio.probes.readiness.successThreshold | int | Number of consecutive successes to pass the probe |
-| minio.probes.readiness.timeoutSeconds | int | Timeout for each probe attempt (seconds) |
-| minio.probes.startup | object | Startup probe to ensure MinIO initializes properly |
-| minio.probes.startup.failureThreshold | int | Number of consecutive failures before pod is considered unready |
-| minio.probes.startup.initialDelaySeconds | int | Delay before starting probe checks (seconds) |
-| minio.probes.startup.periodSeconds | int | Interval between probe checks (seconds) |
-| minio.probes.startup.successThreshold | int | Number of consecutive successes to pass the probe |
-| minio.probes.startup.timeoutSeconds | int | Timeout for each probe attempt (seconds) |
+| minio.probes.livenessProbe | object | Liveness probe to detect if MinIO is running and responsive |
+| minio.probes.livenessProbe.failureThreshold | int | Number of consecutive failures before pod is restarted |
+| minio.probes.livenessProbe.initialDelaySeconds | int | Delay before starting probe checks (seconds) |
+| minio.probes.livenessProbe.periodSeconds | int | Interval between probe checks (seconds) |
+| minio.probes.livenessProbe.successThreshold | int | Number of consecutive successes to pass the probe |
+| minio.probes.livenessProbe.timeoutSeconds | int | Timeout for each probe attempt (seconds) |
+| minio.probes.readinessProbe | object | Readiness probe to determine if MinIO can accept traffic |
+| minio.probes.readinessProbe.failureThreshold | int | Number of consecutive failures before pod is considered unready |
+| minio.probes.readinessProbe.initialDelaySeconds | int | Delay before starting probe checks (seconds) |
+| minio.probes.readinessProbe.periodSeconds | int | Interval between probe checks (seconds) |
+| minio.probes.readinessProbe.successThreshold | int | Number of consecutive successes to pass the probe |
+| minio.probes.readinessProbe.timeoutSeconds | int | Timeout for each probe attempt (seconds) |
+| minio.probes.startupProbe | object | Startup probe to ensure MinIO initializes properly |
+| minio.probes.startupProbe.failureThreshold | int | Number of consecutive failures before pod is considered unready |
+| minio.probes.startupProbe.initialDelaySeconds | int | Delay before starting probe checks (seconds) |
+| minio.probes.startupProbe.periodSeconds | int | Interval between probe checks (seconds) |
+| minio.probes.startupProbe.successThreshold | int | Number of consecutive successes to pass the probe |
+| minio.probes.startupProbe.timeoutSeconds | int | Timeout for each probe attempt (seconds) |
 | minio.replicas | int | Number of pod replicas |
 | minio.resources | object | Pod assigned resources |
 | minio.secretKey | string | Default credential user secret key |

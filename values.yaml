@@ -15,16 +15,17 @@ minio:
   # -- Additional configuration options
   configurationData:
     MINIO_BROWSER: "on"
-    MINIO_COMPRESSION_ENABLE: "on"
     MC_CONFIG_DIR: /tmp/.mc
   # -- Name of the service account
   serviceAccountName:
   # -- Enable compression for all files (use with caution, may increase CPU usage)
-  compressionEnable: true
-  # -- Comma-separated list of file extensions to compress (e.g., '.txt,.log,.json')
-  compressionExtensions: ""
+  compression:
+    # -- Enable or disable compression
+    enabled: true
+    # -- Comma-separated list of file extensions to compress (e.g., '.txt,.log,.json')
+    extensions: ""
   # -- Comma-separated list of MIME types to compress (e.g., 'text/plain,application/json')
-  compressionMimeTypes: ""
+    mimeTypes: ""
   # -- Enable a lifecycle template on the bucket such as object expiration
   enableLifecycle: true
   # -- Retention policy lifecycle template such as expiration days
