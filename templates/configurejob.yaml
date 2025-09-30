@@ -86,8 +86,12 @@ spec:
               mc ilm rule ls {{ $bucket }}
               mc ilm export {{ $bucket }}
               {{- end }}
+              {{ if .Values.minio.compressionEnable }}mc admin config set {{ .Values.minio.name }} compression:enable {{ if .Values.minio.compressionEnable }}on{{ else }}off{{ end }}
+              {{ if .Values.minio.compressionExtensions }}mc admin config set {{ .Values.minio.name }} compression:extensions "{{ .Values.minio.compressionExtensions }}"{{ else }} mc admin config set {{ .Values.minio.name }} compression:extensions ""{{ end }}
+              {{ if .Values.minio.compressionMimeTypes }}mc admin config set {{ .Values.minio.name }} compression:mime_types "{{ .Values.minio.compressionMimeTypes }}"{{ else }} mc admin config set {{ .Values.minio.name }} compression:mime_types ""{{ end }}
               echo "Compression Settings: "
               mc admin config get {{ .Values.minio.name }} compression
+              {{- end }}
               echo "Tiering Settings: "
               mc admin info {{ .Values.minio.name }}
               exit 0;
