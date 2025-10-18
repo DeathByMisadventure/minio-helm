@@ -16,6 +16,10 @@ minio:
   configurationData:
     MINIO_BROWSER: "on"
     MC_CONFIG_DIR: /tmp/.mc
+    MINIO_PROMETHEUS_AUTH_TYPE: "public"
+    MINIO_HEAL_ENABLE: "on"
+    MINIO_SERVER_URL: ""
+    MINIO_BROWSER_REDIRECT_URL: ""
   # -- Name of the service account
   serviceAccountName:
   # -- Enable compression for all files (use with caution, may increase CPU usage)
@@ -64,6 +68,9 @@ minio:
   secretKey: miniosecretkey
   # -- Create a default bucket if set
   defaultBucket: bucket1
+  # -- Enable Prometheus metrics endpoint
+  metrics:
+    enabled: true
   # -- Persistence options
   persistence:
     # -- Persistence accessMode
@@ -144,7 +151,10 @@ ingress:
   # -- Ingress class type
   className: "nginx"
   # -- Ingress annotations
-  annotations: {}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10g"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     # kubernetes.io/ingress.class: nginx
     # nginx.ingress.kubernetes.io/rewrite-target: /
   # -- API external hostname
