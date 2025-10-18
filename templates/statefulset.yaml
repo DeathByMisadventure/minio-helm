@@ -51,7 +51,6 @@ spec:
                 name: {{ .Values.minio.name }}-config
             - secretRef:
                 name: {{ .Values.minio.name }}-secret
-
           startupProbe: {{- toYaml .Values.minio.probes.startupProbe | nindent 12 }}
             httpGet:
               path: /minio/health/live
